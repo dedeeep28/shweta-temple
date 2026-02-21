@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shweta Anarase — Temple of Healing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --sky-dawn: #F5E6E0;
+            --sky-gold: #FAD9C1;
+            --sky-amber: #FCE4B8;
+            --marble: #F8F6F0;
+            --marble-vein: #E8E4E0;
+            --gold: #D4AF37;
+            --gold-deep: #B8941F;
+            --gold-bright: #FFD700;
+            --terracotta: #C4A484;
+            --olive: #6B7B4C;
+            --night: #1B3A5F;
+            --text: #2D2A26;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Crimson Text', serif;
+            color: var(--text);
+            overflow-x: hidden;
+            background: var(--marble);
+        }
+        
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-crimson { font-family: 'Crimson Text', serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        
+        /* Sky gradient */
+        .sky {
+            background: linear-gradient(180deg, var(--sky-dawn) 0%, var(--sky-gold) 50%, var(--sky-amber) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animated clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.6);
+            border-radius: 100px;
+            filter: blur(20px);
+        }
+        
+        .cloud::before {
+            content: '';
+            position: absolute;
+            background: rgba(255,255,255,0.4);
+            border-radius: 100px;
+        }
+        
+        /* Falling petals */
+        .petal {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            border-radius: 0 100% 0 100%;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        /* Temple structure */
+        .temple-container {
+            position: relative;
+            perspective: 1000px;
+        }
+        
+        /* Pediment (triangle top) */
+        .pediment {
+            width: 0;
+            height: 0;
+            border-left: 300px solid transparent;
+            border-right: 300px solid transparent;
+            border-bottom: 150px solid var(--marble);
+            position: relative;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.1));
+        }
+        
+        .pediment::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -280px;
+            width: 0;
+            height: 0;
+            border-left: 280px solid transparent;
+            border-right: 280px solid transparent;
+            border-bottom: 130px solid var(--marble-vein);
+        }
+        
+        /* Column styling */
+        .column {
+            width: 60px;
+            height: 400px;
+            background: linear-gradient(90deg, 
+                var(--marble-vein) 0%,
+                var(--marble) 20%,
+                var(--marble-vein) 40%,
+                var(--marble) 60%,
+                var(--marble-vein) 80%,
+                var(--marble) 100%
+            );
+            position: relative;
+            box-shadow: inset -5px 0 10px rgba(0,0,0,0.05);
+        }
+        
+        .column::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            right: -10px;
+            height: 30px;
+            background: linear-gradient(180deg, var(--gold) 0%, var(--gold-deep) 100%);
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .column::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -10px;
+            right: -10px;
+            height: 30px;
+            background: linear-gradient(180deg, var(--gold-deep) 0%, var(--gold) 100%);
+            border-radius: 0 0 5px 5px;
+        }
+        
+        /* Fluting lines on columns */
+        .column-flute {
+            position: absolute;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: rgba(0,0,0,0.05);
+        }
+        
+        /* The Sun */
+        .sun-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .sun {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 30%, var(--gold-bright), var(--gold), var(--gold-deep));
+            border-radius: 50%;
+            box-shadow: 
+                0 0 60px rgba(212, 175, 55, 0.8),
+                0 0 120px rgba(212, 175, 55, 0.5),
+                inset -10px -10px 40px rgba(0,0,0,0.1);
+            cursor: pointer;
+            position: relative;
+            animation: sunPulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(212, 175, 55, 0.8), 0 0 120px rgba(212, 175, 55, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(212, 175, 55, 1), 0 0 160px rgba(212, 175, 55, 0.7); }
+        }
+        
+        /* Laurel wreath around sun */
+        .laurel-wreath {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            border: 3px solid var(--olive);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+        
+        /* Altar */
+        .altar {
+            background: linear-gradient(180deg, var(--marble) 0%, var(--marble-vein) 100%);
+            border-top: 8px solid var(--gold);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        
+        .altar::before {
+            content: '';
+            position: absolute;
+            top: -16px;
+            left: 20px;
+            right: 20px;
+            height: 8px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--gold) 0px,
+                var(--gold) 20px,
+                transparent 20px,
+                transparent 25px
+            );
+        }
+        
+        /* Greek key pattern */
+        .greek-key {
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'%3E%3Cpath d='M0 0h10v10H0zm10 10h10v10H10zm20-10h10v10H30zm-10 10h10v10H20z' fill='%23D4AF37' fill-opacity='0.3'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+        }
+        
+        /* Offerings */
+        .offering {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 
+                0 10px 40px rgba(0,0,0,0.1),
+                inset 0 -5px 20px rgba(0,0,0,0.05);
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px) scale(0.8);
+        }
+        
+        .offering.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        .offering:hover {
+            transform: translateY(-15px) scale(1.1);
+            box-shadow: 
+                0 30px 60px rgba(212, 175, 55, 0.3),
+                inset 0 -5px 20px rgba(0,0,0,0.05);
+        }
+        
+        .offering::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .offering:hover::after {
+            opacity: 1;
+        }
+        
+        /* Glow under offerings */
+        .offering-glow {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 20px;
+            background: radial-gradient(ellipse, rgba(212, 175, 55, 0.4), transparent);
+            filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .offering:hover .offering-glow {
+            opacity: 1;
+        }
+        
+        /* Chambers (sections) */
+        .chamber {
+            min-height: 100vh;
+            position: relative;
+            padding: 100px 20px;
+        }
+        
+        .chamber-wisdom {
+            background: linear-gradient(180deg, var(--marble) 0%, var(--sky-dawn) 100%);
+        }
+        
+        .chamber-transformation {
+            background: linear-gradient(180deg, var(--sky-dawn) 0%, var(--sky-gold) 50%, var(--sky-amber) 100%);
+        }
+        
+        .chamber-healer {
+            background: linear-gradient(180deg, var(--sky-amber) 0%, var(--marble) 100%);
+        }
+        
+        /* Chamber headers */
+        .chamber-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .chamber-number {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            letter-spacing: 0.5em;
+            color: var(--terracotta);
+            margin-bottom: 16px;
+        }
+        
+        .chamber-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(32px, 6vw, 64px);
+            font-weight: 400;
+            color: var(--text);
+        }
+        
+        /* Quote styling */
+        .temple-quote {
+            font-family: 'Crimson Text', serif;
+            font-size: clamp(24px, 4vw, 40px);
+            font-style: italic;
+            line-height: 1.4;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .temple-quote em {
+            color: var(--terracotta);
+            font-style: italic;
+        }
+        
+        /* Program cards */
+        .program-card {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 40px;
+            transition: all 0.4s ease;
+        }
+        
+        .program-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            border-color: var(--gold);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal-content {
+            background: var(--marble);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9) translateY(50px);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+        
+        .modal-body {
+            padding: 40px;
+        }
+        
+        /* Close button */
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* CTA Button */
+        .temple-cta {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+            color: white;
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+        
+        .temple-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.4);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pediment {
+                border-left-width: 150px;
+                border-right-width: 150px;
+                border-bottom-width: 75px;
+            }
+            
+            .column {
+                width: 40px;
+                height: 250px;
+            }
+            
+            .sun {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SKY SECTION -->
+    <section class="sky min-h-screen relative" id="temple-entrance">
+        <!-- Animated clouds -->
+        <div class="cloud" style="width: 200px; height: 60px; top: 10%; left: -200px;"></div>
+        <div class="cloud" style="width: 300px; height: 80px; top: 20%; left: -300px; animation-delay: -5s;"></div>
+        <div class="cloud" style="width: 250px; height: 70px; top: 15%; right: -250px;"></div>
+        
+        <!-- Falling petals container -->
+        <div id="petals"></div>
+        
+        <!-- Temple Container -->
+        <div class="temple-container min-h-screen flex flex-col items-center justify-center px-4 py-20">
+            
+            <!-- Header -->
+            <div class="text-center mb-8 z-10">
+                <p class="font-cinzel text-xs tracking-[0.5em] text-[#8B7355] mb-4">HOLISTIC NUTRITIONIST</p>
+                <h1 class="font-cinzel text-2xl md:text-3xl text-[#2D2A26]">Shweta Anarase</h1>
+            </div>
+            
+            <!-- Temple Structure -->
+            <div class="relative flex flex-col items-center">
+                
+                <!-- Pediment with Sun -->
+                <div class="relative">
+                    <div class="pediment"></div>
+                    
+                    <!-- Sun in pediment -->
+                    <div class="sun-container">
+                        <div class="laurel-wreath"></div>
+                        
+                        <div class="sun" id="sun"></div>
+                    </div>
+                </div>
+                
+                <!-- Columns and Altar -->
+                <div class="flex items-end justify-center gap-4 md:gap-8 -mt-2">
+                    
+                    <!-- Left Column -->
+                    <div class="column hidden md:block">
+                        <div class="column-flute" style="left: 10px;"></div>
+                        <div class="column-flute" style="left: 20px;"></div>
+                        
+                        <div class="column-flute" style="left: 30px;"></div>
+                        
+                        <div class="column-flute" style="left: 40px;"></div>
+                        
+                        <div class="column-flute" style="left: 50px;"></div>
+                    </div>
+                    
+                    <!-- Altar -->
+                    <div class="altar w-full max-w-2xl mx-4 p-8 md:p-12">
+                        <div class="greek-key mb-8"></div>
+                        
+                        <!-- Offerings (hidden initially) -->
+                        
+                        <div id="offerings-container" class="flex justify-center gap-4 md:gap-8 flex-wrap opacity-0">
+                            
+                            <div class="offering" data-food="honey" data-name="Mέλι (Honey)">
+                                🍯
+                                <div class="offering-glow"></div>
+                            </div>
+                            
+                            
+                            <div class="offering" data-food="olive" data-name="Ἐλαία (Olive)">
+                                🫒
+                                <div class="offering-glow"></div>
+                            </div>
+                            
+                            
+                            <div class="offering" data-food="pomegranate" data-name="Ῥόα (Pomegranate)">
+                                🍎
+                                <div class="offering-glow"></div>
+                            </div>
+                            
+                            
+                            <div class="offering" data-food="fig" data-name="Σῦκον (Fig)">
+                                🍇
+                                <div class="offering-glow"></div>
+                            </div>
+                            
+                            
+                            <div class="offering" data-food="herbs" data-name="Βοτάνη (Herbs)">
+                                🌿
+                                <div class="offering-glow"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Invitation text -->
+                        
+                        <div id="invitation" class="text-center mt-8">
+                            
+                            <p class="font-cinzel text-lg md:text-xl text-[#8B7355] italic">
+                                "In the temple of your body, food is the offering"
+                            </p>
+                            
+                            
+                            <p class="font-inter text-xs tracking-[0.3em] uppercase text-[#C4A484] mt-6">
+                                Click the sun to enter
+                            </p>
+                        </div>
+                        
+                        <div class="greek-key mt-8"></div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div class="column hidden md:block">
+                        
+                        <div class="column-flute" style="left: 10px;"></div>
+                        
+                        <div class="column-flute" style="left: 20px;"></div>
+                        
+                        <div class="column-flute" style="left: 30px;"></div>
+                        
+                        <div class="column-flute" style="left: 40px;"></div>
+                        
+                        <div class="column-flute" style="left: 50px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CHAMBER OF WISDOM -->
+    <section class="chamber chamber-wisdom" id="chamber-wisdom">
+        
+        <div class="max-w-4xl mx-auto">
+            
+            <div class="chamber-header">
+                
+                <p class="chamber-number">I</p>
+                
+                <h2 class="chamber-title">Chamber of Wisdom</h2>
+            </div>
+            
+            
+            <div class="temple-quote">
+                
+                <p class="mb-8">
+                    "All disease begins in the gut. 
+                    <br><br>
+                    When we honor the gut as the 
+                    <em>sacred center</em> of our being,
+                    <br>
+                    hormones find their balance.
+                    <br>
+                    Energy returns like the dawn.
+                    <br>
+                    The body remembers how to <em>thrive</em>."
+                </p>
+            
+            
+            
+            <div class="mt-16 text-center">
+                
+                <p class="font-crimson text-lg text-[#8B7355] italic">
+                    — Hippocrates, reimagined
+                </p>
+            
+            </div>
+            
+            
+            <div class="mt-16 max-w-2xl mx-auto">
+                
+                <p class="font-inter text-sm leading-relaxed text-[#5A524C] text-center">
+                    I work with women ready to stop managing symptoms 
+                    and start healing from within. This is root-cause nutrition — 
+                    no quick fixes, no generic plans. Just you, your body, 
+                    and the ancient wisdom of food as medicine.
+                </p>
+            
+            </div>
+        </div>
+    </section>
+    
+    <!-- CHAMBER OF TRANSFORMATION -->
+    <section class="chamber chamber-transformation" id="chamber-transformation">
+        
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="chamber-header">
+                
+                <p class="chamber-number">II</p>
+                
+                <h2 class="chamber-title">Chamber of Transformation</h2>
+            
+            </div>
+            
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                
+                <!-- Program 1 -->
+                
+                <div class="program-card">
+                    
+                    <p class="font-cinzel text-xs tracking-[0.3em] text-[#C4A484] mb-4">THE BEGINNING</p>
+                    
+                    
+                    <h3 class="font-cinzel text-2xl mb-2">One Month</h3>
+                    
+                    
+                    <p class="font-cinzel text-3xl text-[#B8941F] mb-6">₹9,500</p>
+                    
+                    
+                    <p class="font-inter text-sm text-[#5A524C] mb-6">
+                        For those ready to begin. Foundation building 
+                        with personalized guidance.
+                    </p>
+                    
+                    
+                    <ul class="space-y-3 font-inter text-sm text-[#5A524C]">
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>30-45 min consultation</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Personalized meal plan</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Curated grocery list</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>One follow-up call</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>WhatsApp support</span>
+                        
+                        </li>
+                    
+                    </ul>
+                
+                </div>
+                
+                
+                <!-- Program 2 -->
+                
+                <div class="program-card">
+                    
+                    <p class="font-cinzel text-xs tracking-[0.3em] text-[#C4A484] mb-4">THE JOURNEY</p>
+                    
+                    
+                    <h3 class="font-cinzel text-2xl mb-2">Three Months</h3>
+                    
+                    
+                    <p class="font-cinzel text-3xl text-[#B8941F] mb-6">₹27,500</p>
+                    
+                    
+                    <p class="font-inter text-sm text-[#5A524C] mb-6">
+                        Deep transformation. Lasting change through 
+                        sustained guidance and practice.
+                    </p>
+                    
+                    
+                    <ul class="space-y-3 font-inter text-sm text-[#5A524C]">
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Everything in Beginning</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Biweekly follow-ups</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Cycle-syncing workouts</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Structured exercise routine</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Final assessment</span>
+                        
+                        </li>
+                    
+                    </ul>
+                
+                </div>
+                
+                
+                <!-- Program 3 -->
+                
+                <div class="program-card">
+                    
+                    <p class="font-cinzel text-xs tracking-[0.3em] text-[#C4A484] mb-4">THE METAMORPHOSIS</p>
+                    
+                    
+                    <h3 class="font-cinzel text-2xl mb-2">Six Months</h3>
+                    
+                    
+                    <p class="font-cinzel text-3xl text-[#B8941F] mb-6">₹56,000</p>
+                    
+                    
+                    <p class="font-inter text-sm text-[#5A524C] mb-6">
+                        Complete transformation. Lifelong tools 
+                        for sustained wellness.
+                    </p>
+                    
+                    
+                    <ul class="space-y-3 font-inter text-sm text-[#5A524C]">
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Everything in Journey</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Deep hormonal healing</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Lifestyle integration</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Priority access</span>
+                        
+                        </li>
+                        
+                        
+                        <li class="flex items-start gap-3">
+                            
+                            <span class="text-[#B8941F]">◆</span>
+                            
+                            <span>Long-term wellness plan</span>
+                        
+                        </li>
+                    
+                    </ul>
+                
+                </div>
+            
+            </div>
+        
+        </div>
+    </section>
+    
+    <!-- CHAMBER OF THE HEALER -->
+    <section class="chamber chamber-healer" id="chamber-healer">
+        
+        <div class="max-w-4xl mx-auto">
+            
+            <div class="chamber-header">
+                
+                <p class="chamber-number">III</p>
+                
+                <h2 class="chamber-title">Chamber of the Healer</h2>
+            
+            </div>
+            
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                
+                <!-- Portrait placeholder -->
+                
+                <div class="aspect-[3/4] bg-gradient-to-br from-[#F5E6E0] to-[#E8E4E0] rounded-sm relative overflow-hidden">
+                    
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        
+                        <div class="text-center">
+                            
+                            <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#B8941F] flex items-center justify-center">
+                                
+                                <span class="font-cinzel text-4xl text-white">S</span>
+                            
+                            </div>
+                            
+                            
+                            <p class="font-cinzel text-sm text-[#8B7355]">Shweta Anarase</p>
+                        
+                        </div>
+                    
+                    </div>
+                    
+                    
+                    <!-- Decorative corner -->
+                    
+                    <div class="absolute top-4 right-4 w-16 h-16 border-t-2 border-r-2 border-[#D4AF37]"></div>
+                    
+                    
+                    <div class="absolute bottom-4 left-4 w-16 h-16 border-b-2 border-l-2 border-[#D4AF37]"></div>
+                
+                </div>
+                
+                
+                <!-- Bio -->
+                
+                <div>
+                    
+                    <p class="font-crimson text-xl leading-relaxed mb-6">
+                        I am Shweta — a holistic nutritionist who believes 
+                        that <em>food is the offering that sustains the divine</em> 
+                        within us.
+                    </p>
+                    
+                    
+                    <p class="font-inter text-sm leading-relaxed text-[#5A524C] mb-6">
+                        My practice is rooted in the ancient wisdom of 
+                        Hippocrates, yet guided by modern understanding 
+                        of gut health and hormonal balance. I don't offer 
+                        quick fixes or generic meal plans.
+                    </p>
+                    
+                    
+                    <p class="font-inter text-sm leading-relaxed text-[#5A524C] mb-8">
+                        Instead, I work with women ready to embark on a 
+                        journey of true transformation — to understand their 
+                        bodies, honor their cycles, and reclaim their vitality 
+                        through the sacred practice of nourishment.
+                    </p>
+                    
+                    
+                    <button class="temple-cta">
+                        Begin Your Journey
+                    </button>
+                
+                </div>
+            
+            </div>
+        
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-[#2D2A26] text-[#F8F6F0] py-16 px-6">
+        
+        <div class="max-w-4xl mx-auto text-center">
+            
+            <p class="font-cinzel text-2xl mb-4">Shweta Anarase</p>
+            
+            
+            <p class="font-inter text-sm text-[#8B7355] mb-8">Holistic Nutritionist • Women's Health • Gut Healing</p>
+            
+            
+            <div class="flex justify-center gap-8 mb-8">
+                
+                <a href="#" class="font-inter text-xs tracking-widest hover:text-[#D4AF37] transition-colors">INSTAGRAM</a>
+                
+                
+                <a href="#" class="font-inter text-xs tracking-widest hover:text-[#D4AF37] transition-colors">WHATSAPP</a>
+                
+                
+                <a href="#" class="font-inter text-xs tracking-widest hover:text-[#D4AF37] transition-colors">EMAIL</a>
+            
+            </div>
+            
+            
+            <p class="font-inter text-xs text-[#5A524C]">© 2026 — Temple of Healing</p>
+        
+        </div>
+    </footer>
+    
+    <!-- Offering Modal -->
+    
+    <div class="modal-overlay" id="offeringModal">
+        
+        <div class="modal-content">
+            
+            <button class="modal-close" onclick="closeModal()">×</button>
+            
+            
+            <div class="modal-header">
+                
+                <div class="text-6xl mb-4" id="modalIcon">🍯</div>
+                
+                
+                <h2 class="font-cinzel text-3xl mb-2" id="modalTitle">Mέλι</h2>
+                
+                
+                <p class="font-crimson text-lg italic" id="modalSubtitle">Honey — Liquid Gold of the Gods</p>
+            
+            </div>
+            
+            
+            <div class="modal-body">
+                
+                <p class="font-crimson text-lg leading-relaxed mb-6" id="modalText">
+                    Sacred to Aphrodite, honey has been revered across 
+                    civilizations for its healing properties. Rich in enzymes 
+                    and antioxidants, it soothes the gut lining while providing 
+                    sustained energy.
+                </p>
+                
+                
+                <div class="bg-[#F5E6E0] p-6 rounded-sm mb-6">
+                    
+                    <p class="font-inter text-sm text-[#5A524C] mb-4"><strong>Healing Properties:</strong></p>
+                    
+                    
+                    <ul class="space-y-2 font-inter text-sm text-[#5A524C]" id="modalProperties">
+                        
+                        <li>• Antibacterial and antifungal</li>
+                        
+                        <li>• Soothes digestive inflammation</li>
+                        
+                        <li>• Supports healthy gut bacteria</li>
+                    
+                    </ul>
+                
+                </div>
+                
+                
+                <div class="text-center">
+                    
+                    <p class="font-crimson italic text-[#8B7355] mb-4">
+                        "Where there is honey, there is health."
+                    
+                    </p>
+                    
+                    
+                    <button class="temple-cta">
+                        Explore Programs
+                    </button>
+                
+                </div>
+            
+            </div>
+        
+        </div>
+    </div>
+
+    <script>
+        // Register GSAP plugins
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Animate clouds
+        gsap.to('.cloud', {
+            x: '100vw',
+            duration: 30,
+            repeat: -1,
+            ease: 'none',
+            stagger: 10
+        });
+        
+        // Create falling petals
+        const petalsContainer = document.getElementById('petals');
+        for (let i = 0; i < 15; i++) {
+            const petal = document.createElement('div');
+            petal.className = 'petal';
+            petal.style.left = Math.random() * 100 + '%';
+            petal.style.top = '-20px';
+            petal.style.animationDelay = Math.random() * 5 + 's';
+            petalsContainer.appendChild(petal);
+            
+            gsap.to(petal, {
+                y: '100vh',
+                x: (Math.random() - 0.5) * 200,
+                rotation: Math.random() * 360,
+                duration: 10 + Math.random() * 10,
+                repeat: -1,
+                ease: 'none',
+                delay: Math.random() * 10
+            });
+        }
+        
+        // Sun click interaction
+        let templeOpened = false;
+        document.getElementById('sun').addEventListener('click', () => {
+            if (!templeOpened) {
+                templeOpened = true;
+                
+                // Expand sun
+                gsap.to('#sun', {
+                    scale: 1.3,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                });
+                
+                // Show offerings container
+                gsap.to('#offerings-container', {
+                    opacity: 1,
+                    duration: 0.5
+                });
+                
+                // Animate each offering
+                document.querySelectorAll('.offering').forEach((offering, i) => {
+                    setTimeout(() => {
+                        offering.classList.add('visible');
+                    }, i * 150);
+                });
+                
+                // Fade out invitation
+                gsap.to('#invitation', {
+                    opacity: 0,
+                    y: -20,
+                    duration: 0.5
+                });
+                
+                // Scroll to offerings smoothly
+                setTimeout(() => {
+                    document.getElementById('offerings-container').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }, 800);
+            }
+        });
+        
+        // Offering data
+        const offeringData = {
+            honey: {
+                icon: '🍯',
+                title: 'Mέλι',
+                subtitle: 'Honey — Liquid Gold of the Gods',
+                text: 'Sacred to Aphrodite, honey has been revered across civilizations for its healing properties. Rich in enzymes and antioxidants, it soothes the gut lining while providing sustained energy.',
+                properties: ['• Antibacterial and antifungal', '• Soothes digestive inflammation', '• Supports healthy gut bacteria']
+            },
+            olive: {
+                icon: '🫒',
+                title: 'Ἐλαία',
+                subtitle: 'Olive — Gift of Athena',
+                text: 'The sacred olive was Athena\'s gift to humanity. Its oil nourishes from within, supporting hormonal balance and reducing inflammation throughout the body.',
+                properties: ['• Rich in healthy monounsaturated fats', '• Anti-inflammatory properties', '• Supports cardiovascular health']
+            },
+            pomegranate: {
+                icon: '🍎',
+                title: 'Ῥόα',
+                subtitle: 'Pomegranate — Fruit of the Underworld',
+                text: 'Persephone\'s choice bound her to the underworld for half the year. This ruby fruit is packed with antioxidants that support fertility and feminine vitality.',
+                properties: ['• High in antioxidants and polyphenols', '• Supports blood flow and circulation', '• Ancient symbol of fertility']
+            },
+            fig: {
+                icon: '🍇',
+                title: 'Σῦκον',
+                subtitle: 'Fig — Sacred to Dionysus',
+                text: 'The fig tree was sacred in ancient Greece, symbolizing abundance and prosperity. Its fruit provides fiber for gut health and natural sweetness for balanced energy.',
+                properties: ['• High in dietary fiber', '• Natural source of calcium and potassium', '• Supports digestive regularity']
+            },
+            herbs: {
+                icon: '🌿',
+                title: 'Βοτάνη',
+                subtitle: 'Sacred Herbs — Medicine of the Earth',
+                text: 'From the mountains of Greece to the plains of India, herbs have been humanity\'s first medicine. They support the body\'s natural healing processes and restore balance.',
+                properties: ['• Adaptogenic stress support', '• Natural digestive aids', '• Anti-inflammatory benefits']
+            }
+        };
+        
+        // Offering click
+        document.querySelectorAll('.offering').forEach(offering => {
+            offering.addEventListener('click', () => {
+                const data = offeringData[offering.dataset.food];
+                document.getElementById('modalIcon').textContent = data.icon;
+                document.getElementById('modalTitle').textContent = data.title;
+                document.getElementById('modalSubtitle').textContent = data.subtitle;
+                document.getElementById('modalText').textContent = data.text;
+                
+                const propsList = document.getElementById('modalProperties');
+                propsList.innerHTML = data.properties.map(p => `<li>${p}</li>`).join('');
+                
+                document.getElementById('offeringModal').classList.add('active');
+            });
+        });
+        
+        function closeModal() {
+            document.getElementById('offeringModal').classList.remove('active');
+        }
+        
+        document.getElementById('offeringModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('offeringModal')) {
+                closeModal();
+            }
+        });
+        
+        // Scroll animations for chambers
+        gsap.utils.toArray('.chamber-header').forEach(header => {
+            gsap.from(header, {
+                scrollTrigger: {
+                    trigger: header,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                ease: 'power2.out'
+            });
+        });
+        
+        // Program cards animation
+        gsap.utils.toArray('.program-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                delay: i * 0.1,
+                ease: 'power2.out'
+            });
+        });
+    </script>
+</body>
+</html>
